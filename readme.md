@@ -1,14 +1,15 @@
 # Voronoi-based VMAF for Omnidirectional Video
 
 ## Requirements
-Current implementation is based python version 2
+Current implementation is based python version 2.
+
 First, you need to install the following dependencies:
 
 * pip install wget
 * pip install imageio
 * pip install python-csv
 
-Second, you need to insert all the distorted and reference mp4 files into the __videos__ folder.
+Second, you need to add all the distorted and reference mp4 files into the __videos__ folder.
 
 ## Test
 * python 360vmaf.py --w 3840 --h 2160 --f 100 --r sounders2
