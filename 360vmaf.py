@@ -33,12 +33,17 @@ def width_height_from_str(s):
     h = int(m.group(2))
     return w,h
 
+def remove_file(_file):
+    try:
+        os.remove(_file + ".yuv")
+    except:
+        pass
+
 def create_dir(folder):
     try:
         os.makedirs(folder)
     except:
         pass
-
 
 def extract_process(name):
     # opening the zip file in READ mode 
@@ -52,10 +57,11 @@ def extract_process(name):
         print('Done!')
 
 def mp42yuv(name):
-    cmd = project_name + 'ffmpeg -y -i ' + name + ' -c:v rawvideo -pix_fmt yuv420p ' + video_folder + os.path.basename(name)[:-3] + 'yuv'
-    cmd = cmd.replace("/","\\")
-    #import pdb; pdb.set_trace()
-    os.system(cmd)
+	if os.path.isfile(video_folder + os.path.basename(name)[:-3] + 'yuv') == False:
+		cmd = project_name + 'ffmpeg -y -i ' + name + ' -c:v rawvideo -pix_fmt yuv420p ' + video_folder + os.path.basename(name)[:-3] + 'yuv'
+		cmd = cmd.replace("/","\\")
+		#import pdb; pdb.set_trace()
+		os.system(cmd)
 
 def report_results(video, patch, ref):
     '''
@@ -84,7 +90,8 @@ def compute_patchScores(video, patch, ref):
     cmd  = project_name + 'vmafossexec yuv420p ' + str(width_patch) + ' ' + str(height_patch) + ' ' + ref_patch + ' ' \
     + dis_patch + ' ' + project_name + 'model/' + vmaf_model + ' --log ' + result_patch + ' --log_fmt csv --psnr --ssim --ms-ssim --thread 0 --subsample 1 --ci'
     cmd = cmd.replace("/","\\")
-    os.system(cmd)
+    if(os.path.isfile(result_patch)!=True):
+        os.system(cmd)
 
 def generate_patches(video):
     '''
@@ -92,7 +99,8 @@ def generate_patches(video):
     '''
     cmd = project_name + vpatch + ' ' + video_folder + 'results/' + os.path.basename(video)[:-4] + '.xml'
     cmd = cmd.replace("/","\\")
-    os.system(cmd)
+    if(os.path.isfile(video_folder + 'results/' + os.path.basename(video)[:-4] + '.xml')!=True):
+        os.system(cmd)
 
 def xml_created(video, user_input):
 # use the parse() function to load and parse an XML file
@@ -127,11 +135,12 @@ if __name__ == '__main__':
 
     # download the zip file and extract it
     try:
-    #    # create_dir(project_name)
-        wget.download('http://v-sense.scss.tcd.ie/Datasets/' + file_name, file_name)
-        extract_process(file_name)
-        wget.download('http://v-sense.scss.tcd.ie/Datasets/' + thirdParty_zip, thirdParty_zip)
-        extract_process(thirdParty_zip)
+        if(os.path.isfile(file_name)!=True):
+            wget.download('http://v-sense.scss.tcd.ie/Datasets/' + file_name, file_name)
+            extract_process(file_name)
+        if(os.path.isfile(thirdParty_zip)!=True):
+            wget.download('http://v-sense.scss.tcd.ie/Datasets/' + thirdParty_zip, thirdParty_zip)
+            extract_process(thirdParty_zip)
     except:
         print("No file to be downloaded!")
 
@@ -162,12 +171,15 @@ if __name__ == '__main__':
         for video in glob.glob(video_folder + '*.mp4'):
             if os.path.basename(video)[:-4] != user_input.r:
                 agg_result = {}
-                for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.yuv'):
+                for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.xml'):
+                    #remove yuv file
+                    remove_file(patch[:-4])
                     agg_result[os.path.basename(patch)[:-4]] = report_results(video, patch, user_input.r)
 
                 rows = [agg_result[x] for x in agg_result.keys()]
 #for python2 delete newline and add wb
-                with open(os.path.basename(video)[:-4] + '.csv', 'wb') as f:
+                # with open(os.path.basename(video)[:-4] + '.csv', 'wb') as f:
+                with open(os.path.basename(video)[:-4] + '.csv', 'w', newline="") as f:
                     w = csv.writer(f)
 
                     list_ll = [key for key in agg_result.keys()]
