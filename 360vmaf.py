@@ -99,8 +99,8 @@ def generate_patches(video):
     '''
     cmd = project_name + vpatch + ' ' + video_folder + 'results/' + os.path.basename(video)[:-4] + '.xml'
     cmd = cmd.replace("/","\\")
-    if(os.path.isfile(video_folder + 'results/' + os.path.basename(video)[:-4] + '.xml')!=True):
-        os.system(cmd)
+    #if(os.path.isfile(video_folder + 'results/' + os.path.basename(video)[:-4] + '.xml')!=True):
+    os.system(cmd)
 
 def xml_created(video, user_input):
 # use the parse() function to load and parse an XML file
@@ -144,6 +144,10 @@ if __name__ == '__main__':
     except:
         print("No file to be downloaded!")
 
+    # import pdb; pdb.set_trace()
+    if(len(glob.glob(video_folder + '*.mp4'))==0):
+        print("Error! There is no mp4 files in videos/ folder")
+
     # generate patches
     try:
         for video in glob.glob(video_folder + '*.mp4'):
@@ -163,6 +167,8 @@ if __name__ == '__main__':
             if os.path.basename(video)[:-4] != user_input.r:
                 for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.yuv'):
                     compute_patchScores(video, patch, user_input.r)
+                remove_file(os.path.basename(video)[:-4])
+        remove_file(user_input.r)
     except:
         print("Error in quality estimation")
 
