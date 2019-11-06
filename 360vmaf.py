@@ -199,7 +199,7 @@ if __name__ == '__main__':
                         
                         row.append(str(vor_vmaf))
                         w.writerow(row)
-                    print("::.. 360 VI-VMAF score {}".format(sum(_vor_vmaf)/len(_vor_vmaf)))
+                    print("::.. 360 VI-VMAF score for {} = {}".format(os.path.basename(video)[:-4], sum(_vor_vmaf)/len(_vor_vmaf)))
             else:
                 for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.yuv'):
                     remove_file(patch[:-4])
