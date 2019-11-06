@@ -144,10 +144,6 @@ if __name__ == '__main__':
     except:
         print("No file to be downloaded!")
 
-    # import pdb; pdb.set_trace()
-    if(len(glob.glob(video_folder + '*.mp4'))==0):
-        print("Error! There is no mp4 files in videos/ folder")
-
     # generate patches
     try:
         for video in glob.glob(video_folder + '*.mp4'):
@@ -167,21 +163,21 @@ if __name__ == '__main__':
             if os.path.basename(video)[:-4] != user_input.r:
                 for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.yuv'):
                     compute_patchScores(video, patch, user_input.r)
-                remove_file(os.path.basename(video)[:-4])
-        remove_file(user_input.r)
+                remove_file(video[:-4])
+                #import pdb; pdb.set_trace()
+        remove_file(video_folder + user_input.r)
     except:
         print("Error in quality estimation")
 
     # report and clean the project
     try:
         for video in glob.glob(video_folder + '*.mp4'):
-            if os.path.basename(video)[:-4] != user_input.r:
+            if os.path.basename(video)[:-4] != user_input.r:			
                 agg_result = {}
                 for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.xml'):
                     #remove yuv file
                     remove_file(patch[:-4])
                     agg_result[os.path.basename(patch)[:-4]] = report_results(video, patch, user_input.r)
-
                 rows = [agg_result[x] for x in agg_result.keys()]
 #for python2 delete newline and add wb
                 # with open(os.path.basename(video)[:-4] + '.csv', 'wb') as f:
@@ -193,14 +189,20 @@ if __name__ == '__main__':
                     # list_ll = list(agg_result.keys()).append('360VMAF')
                     
                     w.writerow(list_ll)
+                    _vor_vmaf = []
                     # import pdb; pdb.set_trace()
                     for f in range(len(rows[0])):
                         row = [rows[l][f] for l in range(len(agg_result.keys()))]                        
                         vor_vmaf = [float(rows[l][f]) for l in range(len(agg_result.keys()))]
                         vor_vmaf = sum(vor_vmaf)/len(agg_result.keys())
+                        _vor_vmaf.append(vor_vmaf)
                         
                         row.append(str(vor_vmaf))
                         w.writerow(row)
+                    print("::.. 360 VI-VMAF score {}".format(sum(_vor_vmaf)/len(_vor_vmaf)))
+            else:
+                for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.yuv'):
+                    remove_file(patch[:-4])
 
     except:
         print("Error in reporting")
