@@ -3,8 +3,8 @@
 # Any problem, contact to Cagri Ozcinar, cagriozcinar@gmail.com
 # More description related to the metric, you can check our project page: https://v-sense.scss.tcd.ie/research/voronoi-based-objective-metrics/
 # and publication: Croci et al. "Voronoi-based Objective Quality Metrics for Omnidirectional Video", QoMEX 2019
-# importing required modules 
-from zipfile import ZipFile 
+# importing required modules
+from zipfile import ZipFile
 # import requests
 import wget
 import os
@@ -15,10 +15,10 @@ import xml.etree.ElementTree as ET
 import argparse
 import csv
 
-# specifying the zip file name 
+# specifying the zip file name
 file_name       = 'voronoiMetrics.zip'
 thirdParty_zip  = 'voronoiMetricsThirdParty.zip'
-project_name    = 'voronoiVMAF/' 
+project_name    = 'voronoiVMAF/'
 video_folder    = 'videos/'
 vpatch          = 'ExeAndDlls/OmniVideoQuality.exe'
 vmaf_model      =  'vmaf_rb_v0.6.3/vmaf_rb_v0.6.3.pkl'
@@ -46,22 +46,22 @@ def create_dir(folder):
         pass
 
 def extract_process(name):
-    # opening the zip file in READ mode 
-    with ZipFile(name, 'r') as zip: 
-        # printing all the contents of the zip file 
-        zip.printdir() 
-  
-        # extracting all the files 
-        print('Extracting all the files now...') 
-        zip.extractall(project_name + '/') 
+    # opening the zip file in READ mode
+    with ZipFile(name, 'r') as zip:
+        # printing all the contents of the zip file
+        zip.printdir()
+ 
+        # extracting all the files
+        print('Extracting all the files now...')
+        zip.extractall(project_name + '/')
         print('Done!')
 
 def mp42yuv(name):
-	if os.path.isfile(video_folder + os.path.basename(name)[:-3] + 'yuv') == False:
-		cmd = project_name + 'ffmpeg -y -i ' + name + ' -vframes ' + user_input.f + ' -c:v rawvideo -pix_fmt yuv420p ' + video_folder + os.path.basename(name)[:-3] + 'yuv'
-		cmd = cmd.replace("/","\\")
-		#import pdb; pdb.set_trace()
-		os.system(cmd)
+    if os.path.isfile(video_folder + os.path.basename(name)[:-3] + 'yuv') == False:
+        cmd = project_name + 'ffmpeg -y -i ' + name + ' -vframes ' + user_input.f + ' -c:v rawvideo -pix_fmt yuv420p ' + video_folder + os.path.basename(name)[:-3] + 'yuv'
+        cmd = cmd.replace("/","\\")
+    #import pdb; pdb.set_trace()
+    os.system(cmd)
 
 def report_results(video, patch):
     '''
@@ -77,7 +77,7 @@ def report_results(video, patch):
 
 def compute_patchScores(video, patch, ref):
     '''
-    Step 2: Computing the Voronoi patch scores 
+    Step 2: Computing the Voronoi patch scores
     '''
 
     dis_patch       = video_folder + 'results/' + os.path.basename(video)[:-4] + '/' + os.path.basename(patch)
@@ -94,9 +94,9 @@ def compute_patchScores(video, patch, ref):
         os.system(cmd)
 
 def compute_vmafScores(video, ref):
-    
+   
     result      = video_folder + 'results/' + os.path.basename(video)[:-4] + '/' + os.path.basename(video)[:-4] + '.xml'
-    
+   
     cmd  = project_name + 'vmafossexec yuv420p ' + str(user_input.w) + ' ' + str(user_input.h) + ' ' + video_folder + ref + '.yuv' + ' ' \
     + video_folder + os.path.basename(video)[:-3] + 'yuv' + ' ' + project_name + 'model/' + vmaf_model + ' --log ' + result + ' --log_fmt csv --psnr --ssim --ms-ssim --thread 0 --subsample 1 --ci'
     cmd = cmd.replace("/","\\")
@@ -106,7 +106,7 @@ def compute_vmafScores(video, ref):
 
 def generate_patches(video):
     '''
-    Step 1: Generate Voronoi patches 
+    Step 1: Generate Voronoi patches
     '''
     cmd = project_name + vpatch + ' ' + video_folder + 'results/' + os.path.basename(video)[:-4] + '.xml'
     cmd = cmd.replace("/","\\")
@@ -127,9 +127,9 @@ def xml_created(video, user_input):
             elem.attrib['binMaskFlag']          = str(0)
             elem.attrib['frameNum']             = user_input.f
             elem.attrib['frameSkip']            = str(0)
-            elem.attrib['patchVidFn']           = video_folder + 'results/' + os.path.basename(video)[:-4] + '/patch%03u.yuv' 
+            elem.attrib['patchVidFn']           = video_folder + 'results/' + os.path.basename(video)[:-4] + '/patch%03u.yuv'
             elem.attrib['pixDeg']               = str(10)
-            elem.attrib['voroMATLABFn']         = project_name + "SphericalVoronoiDiagrams/SphereVoroMATLAB_CellNum15.txt"
+            elem.attrib['voroMATLABFn']         = project_name + "SphericalVoronoiDiagrams/SphereVoroMATLAB_CellNum" + str(user_input.c) + ".txt"
     doc.write(video_folder + 'results/' + os.path.basename(video)[:-4] + '.xml')
 
 
@@ -144,9 +144,9 @@ def report_vmafScores(video):
         w.writerow([user_input.r + '.mp4'])
         __vmaf = [float(_vmaf[l]) for l in range(len(_vmaf))]
         # import pdb; pdb.set_trace()
-        
+       
         avg_vmaf = sum(__vmaf)/len(__vmaf)
-        
+       
         print("::.. VMAF score for {} = {}".format(os.path.basename(video)[:-4], round(avg_vmaf,4)))
         w.writerow(['VMAF: '+ str(round(avg_vmaf,4))])
         [w.writerow([score_per_frame]) for score_per_frame in _vmaf]
@@ -160,8 +160,10 @@ if __name__ == '__main__':
     parser.add_argument('--h', required=True, action="store", help="resolution height of a given videos")
     parser.add_argument('--f', required=True, action="store", help="number of frame")
     parser.add_argument('--r', required=True, action="store", help="reference video")
+    parser.add_argument('--c', nargs='?', type=int, default=15, action="store", help="cell number")
 
     user_input = parser.parse_args()
+
 
     # download the zip file and extract it
     try:
@@ -187,7 +189,7 @@ if __name__ == '__main__':
             generate_patches(video)
     except:
         print("Error in patch generation")
-    
+   
     # compute vmaf scores
     try:
         for video in glob.glob(video_folder + '*.mp4'):
@@ -207,7 +209,7 @@ if __name__ == '__main__':
     # report and clean the project
     try:
         for video in glob.glob(video_folder + '*.mp4'):
-            if os.path.basename(video)[:-4] != user_input.r:			
+            if os.path.basename(video)[:-4] != user_input.r:
                 agg_result = {}
                 for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.xml'):
                     #remove yuv file
@@ -235,7 +237,7 @@ if __name__ == '__main__':
                     print("::.. 360 VI-VMAF score for {} = {}".format(os.path.basename(video)[:-4], round(avg_vmaf,4)))
                     w.writerow(['VI-VMAF: '+ str(round(avg_vmaf,4))])
                     [w.writerow([round(score_per_frame,4)]) for score_per_frame in _vor_vmaf]
-                    
+                   
             else:
                 for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.yuv'):
                     remove_file(patch[:-4])
