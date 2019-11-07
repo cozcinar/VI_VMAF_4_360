@@ -13,7 +13,7 @@ Firstly, you should install the following dependencies:
 
 ### Adding mp4 files
 
-Secondly, you should locate all distorted and reference mp4 files into the __videos__ folder.
+Secondly, you should locate all distorted mp4 files and a reference mp4 file into the __videos__ folder.
 
 ### Testing
 
@@ -33,13 +33,16 @@ Results will be located in the main folder with the distorted video name and in 
 You can check the paper in __doc__ folder.
 
 
-### Advance options
+### Advanced options
 
-* Changing VMAF model: In 360vmaf.py, you can change the VMAF model. The default model is vmaf_rb_v0.6.3.
+* Changing VMAF model: In 360vmaf.py, you can change the VMAF model. The default model is *vmaf_rb_v0.6.3*. 
+You can find other models in the folder of __voronoiVMAF/model__.
+
 > vmaf_model      =  'vmaf_rb_v0.6.3/vmaf_rb_v0.6.3.pkl'
 
-* Specifying number of Voronoi patches. By using option '--c', you can specify the usage of number of patches, for example '--c 15'. 
-The default parameter is 15. If you do not specify the number of patches, the script uses the default parameter which is 15. 
+* Specifying number of Voronoi patches. By using option '--c', you can specify the number of patches, for example '--c 15'. 
+The default parameter is 15, which was found an optimal number in the experiment. 
+If you do not specify the number of patches, the script uses the default parameter. 
 
 > python 360vmaf.py --w 3840 --h 2160 --f 100 --r sounders2 --c 15
 
