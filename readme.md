@@ -11,9 +11,10 @@ Firstly, you should install the following dependencies:
 * pip install imageio
 * pip install python-csv
 
-### Adding mp4 files
+### Adding video files
 
-Secondly, you should locate all distorted mp4 files and a reference mp4 file into the __videos__ folder.
+Secondly, you should locate all distorted '.mp4' or '.yuv' files and a reference '.mp4' or '.yuv' file into the __videos__ folder.
+__warning__ Please make sure that all videos have the same resolution.
 
 ### Testing
 
@@ -25,7 +26,7 @@ Secondly, you should locate all distorted mp4 files and a reference mp4 file int
 
 > --f: number of frames, for example 100
 
-> --r: reference (original) .mp4 video name, for example sounders2.mp4, so you should *not* include the video type '.mp4'
+> --r: reference (original) .mp4 video name, for example sounders2.mp4, so you should *not* include the video type '.mp4' or '.yuv'
 
 Results will be located in the main folder with the distorted video name and in *.csv* format. The script can generate two different quality scores: VMAF and VI-VMAF.
 * VMAF is calculated based on equirectangular format.

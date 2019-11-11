@@ -1,6 +1,6 @@
 # coding: utf-8
 # A script to estimate quality score using VMAF for 360-degree video
-# Any problem, contact to Cagri Ozcinar, cagriozcinar@gmail.com
+# Any problem, please contact to Cagri Ozcinar, cagriozcinar@gmail.com
 # More description related to the metric, you can check our project page: https://v-sense.scss.tcd.ie/research/voronoi-based-objective-metrics/
 # and publication: Croci et al. "Voronoi-based Objective Quality Metrics for Omnidirectional Video", QoMEX 2019
 # importing required modules
@@ -21,7 +21,7 @@ thirdParty_zip  = 'voronoiMetricsThirdParty.zip'
 project_name    = 'voronoiVMAF/'
 video_folder    = 'videos/'
 vpatch          = 'ExeAndDlls/OmniVideoQuality.exe'
-vmaf_model      =  'vmaf_rb_v0.6.3/vmaf_rb_v0.6.3.pkl'
+vmaf_model      = 'vmaf_rb_v0.6.3/vmaf_rb_v0.6.3.pkl'
 
 def width_height_from_str(s):
     m = re.search(".*[_-](\d+)x(\d+).*", s)
@@ -57,11 +57,11 @@ def extract_process(name):
         print('Done!')
 
 def mp42yuv(name):
-    if os.path.isfile(video_folder + os.path.basename(name)[:-3] + 'yuv') == False:
-        cmd = project_name + 'ffmpeg -y -i ' + name + ' -vframes ' + user_input.f + ' -c:v rawvideo -pix_fmt yuv420p ' + video_folder + os.path.basename(name)[:-3] + 'yuv'
-        cmd = cmd.replace("/","\\")
-    #import pdb; pdb.set_trace()
-    os.system(cmd)
+    if name.endswith('.mp4'):
+        if os.path.isfile(video_folder + os.path.basename(name)[:-3] + 'yuv') == False:
+            cmd = project_name + 'ffmpeg -y -i ' + name + ' -vframes ' + user_input.f + ' -c:v rawvideo -pix_fmt yuv420p ' + video_folder + os.path.basename(name)[:-3] + 'yuv'
+            cmd = cmd.replace("/","\\")
+        os.system(cmd)
 
 def report_results(video, patch):
     '''
@@ -134,7 +134,6 @@ def xml_created(video, user_input):
 
 
 def report_vmafScores(video):
-    # import pdb; pdb.set_trace()
 
     _vmaf = report_results(video, video)
     with open( 'vmaf_' + os.path.basename(video)[:-4] + '.csv', 'w', newline="") as f:
@@ -143,7 +142,6 @@ def report_vmafScores(video):
         w.writerow([os.path.basename(video)])
         w.writerow([user_input.r + '.mp4'])
         __vmaf = [float(_vmaf[l]) for l in range(len(_vmaf))]
-        # import pdb; pdb.set_trace()
        
         avg_vmaf = sum(__vmaf)/len(__vmaf)
        
@@ -164,7 +162,6 @@ if __name__ == '__main__':
 
     user_input = parser.parse_args()
 
-
     # download the zip file and extract it
     try:
         if(os.path.isfile(file_name)!=True):
@@ -176,9 +173,12 @@ if __name__ == '__main__':
     except:
         print("No file to be downloaded!")
 
-    # generate patches
+    # generate patches for each video file
     try:
-        for video in glob.glob(video_folder + '*.mp4'):
+        types           = (video_folder + '*.mp4', video_folder + '*.yuv')
+        files =[]
+        [files.extend(glob.glob(_type)) for _type in types]
+        for video in files:
             # convert mp4 to yuv
             mp42yuv(video)
             # create a folder for each video
@@ -192,7 +192,7 @@ if __name__ == '__main__':
    
     # compute vmaf scores
     try:
-        for video in glob.glob(video_folder + '*.mp4'):
+        for video in glob.glob(video_folder + '*.yuv'):
             if os.path.basename(video)[:-4] != user_input.r:
                 # compute vmaf for erp
                 compute_vmafScores(video, user_input.r)
@@ -201,14 +201,12 @@ if __name__ == '__main__':
                 for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.yuv'):
                     # compute vmaf per patch
                     compute_patchScores(video, patch, user_input.r)
-                remove_file(video[:-4])
-        remove_file(video_folder + user_input.r)
     except:
         print("Error in quality estimation")
 
     # report and clean the project
-    try:
-        for video in glob.glob(video_folder + '*.mp4'):
+    try:  
+        for video in glob.glob(video_folder + '*.yuv'):
             if os.path.basename(video)[:-4] != user_input.r:
                 agg_result = {}
                 for patch in glob.glob( video_folder + 'results/' + os.path.basename(video)[:-4] + '/*.xml'):
@@ -221,7 +219,6 @@ if __name__ == '__main__':
                 with open( 'vi_vmaf_' + os.path.basename(video)[:-4] + '.csv', 'w', newline="") as f:
                     w = csv.writer(f)
 
-                    # w.writerow(['360VMAF'])
                     w.writerow([vmaf_model])
                     w.writerow([os.path.basename(video)])
                     w.writerow([user_input.r + '.mp4'])
@@ -244,3 +241,7 @@ if __name__ == '__main__':
 
     except:
         print("Error in reporting")
+
+
+        #                 remove_file(video[:-4])
+        # remove_file(video_folder + user_input.r)
