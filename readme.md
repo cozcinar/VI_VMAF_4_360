@@ -48,5 +48,8 @@ If you do not specify the number of patches, the script uses the default paramet
 > python 360vmaf.py --w 3840 --h 2160 --f 100 --r sounders2 --c 15
 
 
+### Source codes for Voronoi diagram
 
-
+We are providing [source codes](https://drive.google.com/file/d/1ZhJIzCc9tHQk-U4WM8U6ylTfkzjbFrj1/view) that contains the patch extraction. In the zip file there are two folders:
+- PublishMaterial/: this folder contains MATLAB code (MATLAB/) that calls the exe file that extracts the patches, examples of XML configuration files that are read when extracting the patches (ConfigXMLExamples/), and pre-computed spherical Voronoi diagrams (SphericalVoronoiDiagrams) required for the extraction of the patches;
+- OmniVideoQuality/: this folder contains the C++ code developed in MS Visual Studio for the extraction of the patches. It is the code for the generation of OmniVideoQuality.exe. See the Documentation/ subfolder on details about the configuration of the third-party libraries.
